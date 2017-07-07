@@ -3,6 +3,6 @@ applications:
   memory: 256M
   instances: 1
   domain: mybluemix.net
-  name: traking-gps-deep-238492
-  host: traking-gps-deep-238492
+  name: traking-4567890-gps-deep-238492
+  host: traking-4567890-gps-deep-238492
 disk_quota: 1024M
