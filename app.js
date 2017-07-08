@@ -1,6 +1,8 @@
 var express = require('express')
 var cookieParser = require('cookie-parser')
 var cookieSession = require('cookie-session')
+var session = require('express-session')
+
 var bodyParser =  require('body-parser')
 var cfenv = require('cfenv')
 var Cloudant = require('cloudant')
@@ -9,33 +11,47 @@ var username = '91d3d536-3383-4791-96c5-b0a9c9311c70-bluemix'
 var password = '8851652d8f6f9f8635e0b120a4c041b9bdfaa182c73f65d74db6fcad5b185c49'
 var cloudant = Cloudant({account:username, password:password})
 var gps = cloudant.db.use('gps')
+
 var app = express()
-
-
-
+var appEnv = cfenv.getAppEnv()
+/*
 app.use(express.static(__dirname + '/public'))
-var appEnv = cfenv.getAppEnv();
+*/
 
 app.set('trust proxy', 1) // trust first proxy
 
 app.use(cookieParser())
 app.use(bodyParser())
 
+
+
+var sess = {
+  secret: 'keyboard cat',
+  cookie: {}
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+
+app.use(session(sess))
+
+/*
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }))
-
-/*
+*/
 app.get('/', function (req, res, next) {
   // Update views
   req.session.views = (req.session.views || 0) + 1
 
   //console.log(req.cookies['connect.sid'])
    // Write response
-  res.sendFile('tracking.html', {root: __dirname })
+  res.sendFile('/public/index.html', {root: __dirname })
 })
-*/
+
 
 app.post('/', function (req, res, next) {
       var coord = {
@@ -49,21 +65,36 @@ app.post('/', function (req, res, next) {
           "timestamp": req.body["properties"]["timestamp"]
         }
       }
-
   gps.get(req.cookies['connect.sid'], function(err, body) {
+    //console.log('get');
     if (!err){
       gps.destroy(body._id, body._rev, function(erro, body) {
+        //console.log('destroy');
         if(!erro){
-          gps.insert(coord, function(error, body, header) {
+          gps.insert(coord, function(error, body) {
+            //console.log('insert');
             if (!error){
-              console.log('You have inserted the positoin of' + body.id);
-              return res.send({results: body});
+              console.log('You have inserted the position of' + body.id);
+              //res.send("hola");
             }
-          });
+            //res.send({ results: error});
+          })
         }
-      });
+        //res.send({ results: erro});
+      })
+    }else {
+      //console.log('not_found');
+      gps.insert(coord, function(error, body) {
+        //console.log('insert because is new');
+        if (!error){
+           console.log('You have inserted the position of' + body.id);
+           //res.send("hola");
+        }
+        //res.send({ results: error});
+      })
     }
-  });
+  })
+  res.send("sucessfull");
 });
 
 function rev() {
@@ -75,14 +106,7 @@ function rev() {
   return '1-' + s4() + s4() + s4() + s4() + s4() + s4() + s4() + s4()
 }
 
-
-// start server on the specified port and binding host
 app.listen(appEnv.port, '0.0.0.0', function() {
-  // print a message when the server starts listening
   console.log("server starting on " + appEnv.url);
 });
-
-
-
-
 
