@@ -92,13 +92,13 @@ app.post('/', function (req, res, next) {
         }
       }
   gps.get(req.cookies['connect.sid'], function(err, body) {
-    //console.log('get');
+    console.log('get');
     if (!err){
       gps.destroy(body._id, body._rev, function(erro, body) {
-        //console.log('destroy');
+        console.log('destroy');
         if(!erro){
           gps.insert(coord, function(error, body) {
-            //console.log('insert');
+            console.log('insert');
             if (!error){
               console.log('You have inserted the position of' + body.id);
               //res.send("hola");
@@ -109,9 +109,9 @@ app.post('/', function (req, res, next) {
         //res.send({ results: erro});
       })
     }else {
-      //console.log('not_found');
+      console.log('not_found');
       gps.insert(coord, function(error, body) {
-        //console.log('insert because is new');
+        console.log('insert because is new');
         if (!error){
            console.log('You have inserted the position of' + body.id);
            //res.send("hola");
