@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Traking</title>
+	<script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
+</head>
+<body>
+	<button id="start" onclick="startWatch()">Start</button>
+	<button id="stop" onclick="stopWatch()">Stop</button>
+	<script type="text/javascript">
+		var last_lon = 0;
+		var last_lat = 0;
+		var watchID = null;
+		var options = {
+		  enableHighAccuracy: false,
+		  timeout: 10000,
+		  maximumAge: 0
+		};
+
+		function startWatch(){
+			watchID = navigator.geolocation.watchPosition(doWatch,  error, options);
+			console.log('Start');
+		}
+		function doWatch(position){
+			console.log('Watch position')
+			var lon = Number(Math.round(position.coords.longitude + 'e' + 5) + 'e-' + 5);
+			var lat = Number(Math.round(position.coords.latitude + 'e' + 5) + 'e-' + 5);
+			//if ((lon == last_lon) && (lat == last_lat)) return null;
+			last_lon = lon;
+			last_lat = lat;
+			var coord = {
+				"type": "Feature",
+				"geometry": {
+					"type": "Point",
+					"coordinates": [lon, lat]
+				},
+				"properties": {
+					"timestamp": position.timestamp
+				}
+			};
+			
+			saveToServer(coord);
+		}
+
+		function error(){
+			console.log('Carajo');
+		}
+
+		function saveToServer(coord){
+			$.ajax({
+				url: "/",
+				method:"POST",
+				data: coord
+			});			
+		}
+
+		function stopWatch(){
+			console.log('into stop');
+			location.reload();
+			/*if(watchID){
+				navigator.geolocation.clearWatch(watchID);
+				console.log('Stoped');
+			}*/
+		}
+		
+
+	</script>
+</body>
+</html>

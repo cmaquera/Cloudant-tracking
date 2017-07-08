@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>fsdafasf</title>
+</head>
+<body>
+<script type="text/javascript">
+var id, target, options;
+
+function success(pos) {
+  var crd = pos.coords;
+  console.log('success: ' + crd.latitude + ' - ' + crd.longitude);
+}
+
+function error(err) {
+  console.warn('ERROR(' + err.code + '): ' + err.message);
+}
+
+target = {
+  latitude : 0,
+  longitude: 0
+};
+
+options = {
+  enableHighAccuracy: false,
+  timeout: 10000,
+  maximumAge: 0
+};
+
+id = navigator.geolocation.watchPosition(success, error, options);  
+</script>
+</body>
+</html>
