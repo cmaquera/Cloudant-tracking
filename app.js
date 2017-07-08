@@ -1,9 +1,48 @@
-var express = require('express')
+/*
 var cookieParser = require('cookie-parser')
-var cookieSession = require('cookie-session')
 var session = require('express-session')
+var express = require('express')
+
+var app = express()
+
+app.use(cookieParser())
+
+var sess = {
+  secret: 'keyboard cat',
+  cookie: {}
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  //sess.cookie.secure = true // serve secure cookies
+}
+
+app.use(session(sess))
+
+
+app.get('/', function (req, res, next) {
+  // Update views
+  req.session.views = (req.session.views || 0) + 1
+
+  console.log(req.cookies['connect.sid'])
+  // Write response
+  res.sendFile('/public/index.html', {root: __dirname })
+})
+
+app.post('/', function (req, res, next) {
+  console.log(req.cookies['connect.sid'])
+  res.end(req.session.views)
+})
+
+app.listen(3000)
+
+*/
+
 
 var bodyParser =  require('body-parser')
+var cookieParser = require('cookie-parser')
+var session = require('express-session')
+var express = require('express')
 var cfenv = require('cfenv')
 var Cloudant = require('cloudant')
 
@@ -14,44 +53,31 @@ var gps = cloudant.db.use('gps')
 
 var app = express()
 var appEnv = cfenv.getAppEnv()
-/*
-app.use(express.static(__dirname + '/public'))
-*/
-
-app.set('trust proxy', 1) // trust first proxy
 
 app.use(cookieParser())
 app.use(bodyParser())
-
-
 
 var sess = {
   secret: 'keyboard cat',
   cookie: {}
 }
 
-if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
-  sess.cookie.secure = true // serve secure cookies
-}
+//if (app.get('env') === 'production') {
+  //app.set('trust proxy', 1) // trust first proxy
+  //sess.cookie.secure = true // serve secure cookies
+//}
 
 app.use(session(sess))
 
-/*
-app.use(cookieSession({
-  name: 'session',
-  keys: ['key1', 'key2']
-}))
-*/
+
 app.get('/', function (req, res, next) {
   // Update views
   req.session.views = (req.session.views || 0) + 1
-
+  //console.log(req.cookies);
   //console.log(req.cookies['connect.sid'])
    // Write response
   res.sendFile('/public/index.html', {root: __dirname })
 })
-
 
 app.post('/', function (req, res, next) {
       var coord = {
