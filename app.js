@@ -2,6 +2,7 @@ var express = require('express')
 var cookieParser = require('cookie-parser')
 var cookieSession = require('cookie-session')
 var bodyParser =  require('body-parser')
+var cfenv = require('cfenv')
 var Cloudant = require('cloudant')
 
 var username = '91d3d536-3383-4791-96c5-b0a9c9311c70-bluemix'
@@ -9,6 +10,11 @@ var password = '8851652d8f6f9f8635e0b120a4c041b9bdfaa182c73f65d74db6fcad5b185c49
 var cloudant = Cloudant({account:username, password:password})
 var gps = cloudant.db.use('gps')
 var app = express()
+
+
+
+app.use(express.static(__dirname + '/public'))
+var appEnv = cfenv.getAppEnv();
 
 app.set('trust proxy', 1) // trust first proxy
 
@@ -20,6 +26,7 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }))
 
+/*
 app.get('/', function (req, res, next) {
   // Update views
   req.session.views = (req.session.views || 0) + 1
@@ -28,6 +35,7 @@ app.get('/', function (req, res, next) {
    // Write response
   res.sendFile('tracking.html', {root: __dirname })
 })
+*/
 
 app.post('/', function (req, res, next) {
       var coord = {
@@ -68,10 +76,13 @@ function rev() {
 }
 
 
+// start server on the specified port and binding host
+app.listen(appEnv.port, '0.0.0.0', function() {
+  // print a message when the server starts listening
+  console.log("server starting on " + appEnv.url);
+});
 
 
 
 
-    
 
-app.listen(3000)
